@@ -1,8 +1,8 @@
-const React = require("react")
+import React from 'react'
 const express = require("express")
 const app = express()
-const renderToString = require("react-dom/server").renderToString
-const App = require("../Router/App").default
+import { renderToString } from "react-dom/server"
+import App from '../Router/app'
 import { StaticRouter } from "react-router-dom/server";
 
 app.use(express.static("public"))
