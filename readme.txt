@@ -10,43 +10,62 @@ note: to execute jsx babel transiped is neccessary for both server and clint bun
 Server Side Rendering Detail
 =============================
 
-1. For Server Side Rendering we have to make React Component as String  . So For Conversion of Component into string we have to use RenderToString Method
-const renderToString = require("react-dom/server").renderToString
-2.For Server Side Routing We Use StaticRouter in which Child We give Routes and route . important point note here is in StaticRouter we have to pass location props as req.url .
-so according to url it will pick route and return component and from renderToString method it return html as string.
-3. we wil face an issue like this .
-      You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
-      | app.get("*", (req, res) => {
-      |   let componetServerComponent = renderToString(
-      >     <StaticRouter location={req.url}>
-      |       <App />
-      |     </StaticRouter>
+      1. For Server Side Rendering we have to make React Component as String  . So For Conversion of Component into string we have to use RenderToString Method
+      const renderToString = require("react-dom/server").renderToString
+      2.For Server Side Routing We Use StaticRouter in which Child We give Routes and route . important point note here is in StaticRouter we have to pass location props as req.url .
+      so according to url it will pick route and return component and from renderToString method it return html as string.
+      3. we wil face an issue like this .
+            You may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders
+            | app.get("*", (req, res) => {
+            |   let componetServerComponent = renderToString(
+            >     <StaticRouter location={req.url}>
+            |       <App />
+            |     </StaticRouter>
 
-this is issue is arise because webpack and node don't know jsx they only know js  . so to handle this issue have  to use a babel-loader so that it transpiles jsx ans es6 before executing file
+      this is issue is arise because webpack and node don't know jsx they only know js  . so to handle this issue have  to use a babel-loader so that it transpiles jsx ans es6 before executing file
 
-4. so handle issue we have to install following dependencies
- "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
-    "@babel/preset-react": "^7.18.6",
-    "babel-loader": "^9.1.2",
-5. also create .babelrc in which we have to define preset so that it is able to understand jsx and transpiled jsx into normal vanila js
+      4. so handle issue we have to install following dependencies
+      "@babel/core": "^7.21.3",
+          "@babel/preset-env": "^7.20.2",
+          "@babel/preset-react": "^7.18.6",
+          "babel-loader": "^9.1.2",
+      5. also create .babelrc in which we have to define preset so that it is able to understand jsx and transpiled jsx into normal vanila js
 
-Important Note
-===============
-1.before Running Server first bundle should be created with transpiled code then execute this transpiled code so that server side jsx code execute properly
-2.someTime mininfied error arise on browser because we did't specify mode in which bundle created so mode:development will help
-3.client side bundle should be in public folder . so that when request goes for client bundle it serve from public and rehydrate on client
-4.For serverSide Rendering Appp we must use  rehydrate(domNode ,<App/>) for client side rehydration
-5. For React App we use createRoot() it return render and unmount
+      Important Note
+      ===============
+      1.before Running Server first bundle should be created with transpiled code then execute this transpiled code so that server side jsx code execute properly
+      2.someTime mininfied error arise on browser because we did't specify mode in which bundle created so mode:development will help
+      3.client side bundle should be in public folder . so that when request goes for client bundle it serve from public and rehydrate on client
+      4.For serverSide Rendering Appp we must use  rehydrate(domNode ,<App/>) for client side rehydration
+      5. For React App we use createRoot() it return render and unmount
 
-DocToCheck
-===========
-https://react.dev/reference/react-dom/server/renderToString
-https://reactrouter.com/en/main/router-components/static-router
-https://www.robinwieruch.de/webpack-babel-setup-tutorial/
-https://github.com/facebook/react/issues/24610
-https://stackoverflow.com/questions/33001237/webpack-not-excluding-node-modules
+      DocToCheck
+      ===========
+      https://react.dev/reference/react-dom/server/renderToString
+      https://reactrouter.com/en/main/router-components/static-router
+      https://www.robinwieruch.de/webpack-babel-setup-tutorial/
+      https://github.com/facebook/react/issues/24610
+      https://stackoverflow.com/questions/33001237/webpack-not-excluding-node-modules
 
 
-Note: in latest React SWITCH is deprecated in place of this Routes(not Router) they provided and inside of this route will be there
-2. No two router will be nested inside each other
+      Note: in latest React SWITCH is deprecated in place of this Routes(not Router) they provided and inside of this route will be there
+      2. No two router will be nested inside each other
+
+
+So OverAll Thinking Is we are not going to start index.js file directly on server first bundle will created with transpiled code then we start server by this transpiled code
+
+
+
+ClientSideRendering
+=======================
+1. in isomerphic Rendering Server build will not send to browser. only client bundle will sent to browser . server bundle will be there on server. but bundle size will be almost same becouse almost same code involve in bundling procees
+2. For Client Side Routing We only Need rehydrate Function . in which root element we have to pass it will autometically render all pages on client side
+
+Note
+=====
+besically Serve side bundle we create becouse in the procees of bundling code perform transpiled such tha node easily understand . rather than this if we have any proccess to
+directly tranfiled code on server then no need to create a bundle on server.
+
+
+3. when script loaded on client first its execute rehydrate function and execute same route which is executing on server and insert javascript handle
+4. for Client Side Routing we use BrouseRouter which we get from react-router-dom . after this same App will executed same as server
